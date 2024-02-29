@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS  # Import CORS from flask_cors
 import firebase_admin
 from firebase_admin import credentials, auth
-from user_repository import UserRepository
+from user_repository import User, UserRepository
 cred = credentials.Certificate("./nzhf-database-firebase-adminsdk-diwyt-3616a4d956.json")
 firebase_admin.initialize_app(cred)
 
@@ -26,37 +26,32 @@ def extract_bearer_token():
     return auth_header[len('Bearer '):]
 
 # calls extract_bearer_token(), retrieves the email then get user information
-def get_user_info():
-    login()
+def get_user() -> User:
+    id_token = extract_bearer_token()
+    # Verify the ID token
+    decoded_token = auth.verify_id_token(id_token)
 
+    # Extract user information
+    email = decoded_token.get('email')
+    return user_repository.get(email)
+    
 @app.route('/login', methods=['POST'])
 def login():
-    id_token = extract_bearer_token()
     try:
-        # Verify the ID token
-        decoded_token = auth.verify_id_token(id_token)
+        user = get_user()
 
-        # Extract user information
-        uid = decoded_token['uid']
-        email = decoded_token.get('email')
-        display_name = decoded_token.get('name')
-
-        email = request.json.get('email')
-
-        # You can implement your logic here to retrieve the username based on the email
-        # For simplicity, let's assume a hardcoded mapping
-        # user_mapping = {
-        #     'jupringot@gmail.com': 'Julien Pringot',
-        #     'paul.pringot@gmail.com': 'Paul Pringot'
-        # }
-
-        # username = user_mapping.get(email, 'User not found')
-
-        return jsonify({'username': display_name, 'usertype': 'NZHF Admin'})
+        return jsonify({'username': user.full_name, 'usertype': user.role.name})
     except auth.ExpiredIdTokenError:
         return jsonify({'error': 'Token has expired'}), 401
     except auth.InvalidIdTokenError:
         return jsonify({'error': 'Invalid token'}), 401
+
+@app.route('/users', methods=['GET'])
+def users():
+    # retrieve the user sending the request
+    # then sends back all other users for NZHF Admin
+    # or empty list for Club Admin
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True)
