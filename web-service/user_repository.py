@@ -4,7 +4,7 @@ from enum import Enum
 
 class UserRole(Enum):
     NZHF_ADMIN = 'NZHF Admin'
-    CLUB_ADMIN = 'CLub Admin'
+    CLUB_ADMIN = 'Club Admin'
 
 @dataclass
 class User:

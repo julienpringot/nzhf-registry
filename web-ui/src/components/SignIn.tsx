@@ -1,23 +1,17 @@
 import { signInWithGooglePopup } from "./GoogleSignin"
-import axios from 'axios';
+import { login } from "../utilities/Requests"
+import { useAuth } from '../AuthContext';
 
 const SignIn = () => {
+    const { setToken } = useAuth();
     const logGoogleUser = async () => {
         const response = await signInWithGooglePopup();
-        console.log(response);
-        console.log(response.user.email);
         const idToken = await response.user.getIdToken();
-        console.log('ID Token:', idToken);
+        setToken(idToken);
 
         try {
-            const ret = await axios.post('http://localhost:5000/login', {}, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${idToken}`,
-                }
-            });
-
-            // Assuming a successful response with a JSON payload containing the 'username' field
+            const ret = await login(idToken);
+            console.log(ret);
             const username = ret.data;
             console.log(username);
         } catch (error) {
