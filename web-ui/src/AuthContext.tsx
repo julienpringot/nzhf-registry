@@ -2,7 +2,9 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface AuthContextProps {
     idToken: string | null;
-    setToken: (token: string) => void;
+    fullName: string | null;
+    role: string | null;
+    setInfo: (token: string, fullName?: string, role?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -13,14 +15,20 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [idToken, setIdToken] = useState<string | null>(null);
+    const [fullName, setFullName] = useState<string | null>(null);
+    const [role, setRole] = useState<string | null>(null);
 
-    const setToken = (token: string) => {
+    const setInfo: AuthContextProps['setInfo'] = (token, fullName, role) => {
         setIdToken(token);
+        setFullName(fullName || null);
+        setRole(role || null);
     };
 
     const contextValue: AuthContextProps = {
         idToken,
-        setToken,
+        fullName,
+        role,
+        setInfo,
     };
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

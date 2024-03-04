@@ -2,3 +2,4 @@
 /web-service/venv/*
 *.pyc
 *.pyc
+web-service/__pycache__/user_repository.cpython-311.pyc

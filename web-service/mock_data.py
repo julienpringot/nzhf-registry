@@ -1,5 +1,5 @@
 # Create instances of the User dataclass
-from user_repository import User, UserRepository, UserRole
+from data_repository import User, UserRepository, UserRole
 
 MockUserRepo = UserRepository()
 MockUserRepo.add(User(email='jupringot@gmail.com', full_name='Julien Pringot', role=UserRole.NZHF_ADMIN))

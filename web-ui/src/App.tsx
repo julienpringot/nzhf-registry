@@ -1,30 +1,21 @@
-import SignIn from './components/SignIn';
-import logo from './logo.jpg';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './AuthContext';
+import SignInPage from './components/SigninPage';
+import HomePage from './components/HomePage';
+
 
 function App() {
 
   return (
     <AuthProvider>
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} />
-          <p>
-            NZHF Player Registry
-          </p>
-          <SignIn />
-          <a
-            className="App-link"
-            href="https://handball.org.nz/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            NZHF Website
-          </a>
-        </header>
-      </div>
-    </AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<SignInPage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Routes>
+      </Router>
+    </AuthProvider >
   );
 }
 

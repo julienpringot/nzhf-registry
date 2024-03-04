@@ -3,7 +3,7 @@ from flask_cors import CORS  # Import CORS from flask_cors
 import firebase_admin
 from firebase_admin import credentials, auth
 from mock_data import MockUserRepo
-from user_repository import User, UserRole
+from data_repository import User, UserRole
 
 cred = credentials.Certificate("C:/Dev/nzhf-database-firebase-adminsdk-yb01r-facef03988.json")
 firebase_admin.initialize_app(cred)
@@ -16,10 +16,13 @@ class Server:
         self.user_repo = user_repo
     
     def with_user(method):
+        # creates a decorator for methods, trying to extract user
+        # from the request then calling the method with it
+        # or sending back error message
         def wrapper(self, *args, **kwargs):
             try:
-                user = self._get_user()
-                return method(self, user, *args, **kwargs)
+                signed_in_user = self._get_user()
+                return method(self, signed_in_user, *args, **kwargs)
             except auth.ExpiredIdTokenError:
                 return jsonify({'error': 'Token has expired'}), 401
             except auth.InvalidIdTokenError:
@@ -27,18 +30,22 @@ class Server:
         return wrapper
 
     @with_user
-    def login(self, user):
-        return jsonify({'username': user.full_name, 'usertype': user.role.name})
+    def login(self, signed_in_user):
+        return jsonify({'full_name': signed_in_user.full_name, 'role': signed_in_user.role.name})
 
     @with_user
-    def users(self, user):
-        # retrieve the user sending the request
-        # then sends back all other users for NZHF Admin
-        # or empty list for Club Admin
-        if user.role is UserRole.NZHF_ADMIN:
-            return jsonify({'username': user.full_name, 'usertype': user.role.name} for user in self.user_repo)
-        else:
-            return jsonify([])
+    def users(self, signed_in_user):
+        return jsonify(self._get_users(signed_in_user))
+    
+    @with_user
+    def create_user(self, signed_in_user):
+        return jsonify({'error': 'not implemented'}), 401
+        
+    def _get_users(self, signed_in_user):
+        if signed_in_user.role == UserRole.NZHF_ADMIN:
+            # only admins have access to all users
+            return [{'full_name': u.full_name, 'role': u.role.name} for u in self.user_repo.get_all()]
+        return []
    
     def _extract_bearer_token(self):
         # Get the Authorization header from the request
@@ -65,7 +72,6 @@ class Server:
         return self.user_repo.get(email)
 
 server = Server(MockUserRepo)
-
 
 @app.route('/login', methods=['POST'])
 def login():

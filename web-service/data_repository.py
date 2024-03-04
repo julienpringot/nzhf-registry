@@ -21,3 +21,6 @@ class UserRepository:
 
     def get(self, email):
         return self._users_by_email[email]
+    
+    def get_all(self):
+        return self._users_by_email.values()
