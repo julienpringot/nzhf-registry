@@ -1,0 +1,35 @@
+1. Regions Table:
+   - region_id (Primary Key)
+   - region_name
+
+2. Clubs Table:
+   - club_id (Primary Key)
+   - region_id (Foreign Key referencing Regions)
+   - club_name
+   - description
+   - logo_image (BLOB or a link to the image file)
+   - contact_email
+   - website_link (optional)
+   - facebook_link (optional)
+   - instagram_link (optional)
+
+3. Seasons Table:
+   - season_id (Primary Key)
+   - season_name
+   - year
+
+4. Players Table:
+   - player_id (Primary Key)
+   - first_name
+   - last_name
+   - gender
+   - date_of_birth
+   - is_nz_citizen (boolean flag indicating NZ citizenship)
+   - email
+   - phone_number
+
+5. PlayerRegistrations Table:
+   - registration_id (Primary Key)
+   - player_id (Foreign Key referencing Players)
+   - club_id (Foreign Key referencing Clubs)
+   - season_id (Foreign Key referencing Seasons)

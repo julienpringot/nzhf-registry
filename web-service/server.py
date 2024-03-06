@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS  # Import CORS from flask_cors
 import firebase_admin
 from firebase_admin import credentials, auth
-from mock_data import MockUserRepo
-from data_repository import User, UserRole
+from data_repository import User, UserRepository, UserRole
 
 cred = credentials.Certificate("C:/Dev/nzhf-database-firebase-adminsdk-yb01r-facef03988.json")
 firebase_admin.initialize_app(cred)
@@ -71,7 +70,8 @@ class Server:
         email = decoded_token.get('email')
         return self.user_repo.get(email)
 
-server = Server(MockUserRepo)
+user_repo = UserRepository()
+server = Server(user_repo)
 
 @app.route('/login', methods=['POST'])
 def login():
